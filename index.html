@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#121220">
+  <meta name="description" content="RAP is a retrieval-augmented multi-agent framework for editable academic poster generation, built on the PosterReverse-25K template dataset.">
+  <title>RAP · Academic Poster Generation from Real Templates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Source+Serif+Pro:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #121220;
+      --text: #ffffff;
+      --muted: #d0d0d0;
+      --subtle: #b0b0b0;
+      --accent: #cf9aff;
+      --line: rgba(255, 255, 255, .1);
+      --font: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+      --heading: 'Poppins', Arial, sans-serif;
+      --panel: rgba(18, 18, 32, .85);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body { margin: 0; position: relative; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 17.6px; line-height: 1.8; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    a, button { -webkit-tap-highlight-color: transparent; }
+    a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid #e19dff; outline-offset: 5px; }
+    button:disabled { cursor: not-allowed; }
+    ::selection { background: #8042b9; color: #fff; }
+    [hidden] { display: none !important; }
+    .wrap { width: min(950px, calc(100% - 64px)); margin-inline: auto; }
+    .icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .skip-link { position: fixed; top: -80px; left: 16px; z-index: 20; background: #fff; color: #121220; padding: 8px 16px; border-radius: 6px; }
+    .skip-link:focus { top: 16px; }
+    main, .site-footer { position: relative; z-index: 1; }
+    .page-backdrop { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; background: #121220; }
+    .backdrop-grid { position: absolute; inset: -40px -55px; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; align-content: center; transform: rotate(-3deg) scale(1.08); }
+    .backdrop-grid svg, .backdrop-grid img { width: 100%; aspect-ratio: 1.46; object-fit: cover; display: block; color: #9c78ca; opacity: .7; }
+    .backdrop-grid > :nth-child(5n + 2) { color: #588bb2; }
+    .backdrop-grid > :nth-child(5n + 3) { color: #ad769f; }
+    .backdrop-grid > :nth-child(5n + 4) { color: #528c90; }
+    .backdrop-grid > :nth-child(5n) { color: #b09162; }
+    .page-backdrop::after { position: absolute; inset: 0; content: ''; background: linear-gradient(rgba(10,10,22,.5), rgba(14,14,30,.58)), radial-gradient(ellipse at center, transparent, rgba(8,8,20,.38)); }
+    .hero { position: relative; padding: 100px 0 60px; text-align: center; background: linear-gradient(to top, #0a0a14 3%, rgba(10,10,20,.8) 25%, rgba(10,10,20,.08) 80%); }
+    .hero > .wrap { max-width: 950px; }
+    h1 { max-width: 880px; margin: 0 auto 34px; font-family: var(--heading); font-weight: 700; font-size: clamp(32px, 4.4vw, 48px); line-height: 1.3; letter-spacing: -.025em; background: linear-gradient(90deg, #a7cffd, #e19dff); color: transparent; -webkit-background-clip: text; background-clip: text; text-shadow: 0 0 5px rgba(200,100,255,.7), 0 0 15px rgba(100,180,255,.5), 0 0 30px #121220; }
+    .hero-description { max-width: 780px; margin: 0 auto; font-size: 20px; line-height: 1.8; color: #e0e0e0; text-shadow: 0 0 8px #000, 0 0 5px #000; }
+    .author-list { margin: 28px 0 0; font-size: 19.2px; font-weight: 700; text-shadow: 0 0 8px #000, 0 0 5px #000; }
+    .author-list.is-pending { font-size: 16px; font-weight: 400; color: #c5c5ce; }
+    .affiliations { margin: 12px 0 0; font-size: 16px; color: #e0e0e0; text-shadow: 0 0 8px #000; }
+    .poster-wall { margin: 48px -64px 0; padding: 0; }
+    .poster-wall-grid { display: grid; grid-template-columns: repeat(var(--wall-columns, 5), minmax(0, 1fr)); gap: 8px; }
+    .wall-tile { display: block; min-width: 0; margin: 0; aspect-ratio: 1.46; color: #b192d8; overflow: hidden; border-radius: 4px; box-shadow: 0 5px 18px #0006; }
+    .wall-tile:nth-child(3n + 2) { color: #7497c2; }
+    .wall-tile:nth-child(3n) { color: #74aaa2; }
+    .wall-tile:nth-child(4n) { color: #b78eb1; }
+    .wall-tile svg, .wall-tile img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .poster-wall.has-assets .wall-tile { background: #fff; }
+    .poster-wall.is-composite .wall-tile { aspect-ratio: auto; }
+    .poster-wall.is-composite img { height: auto; }
+    .wall-caption { margin: 12px 0 0; font-size: 13px; color: #a9a4b4; }
+    section.content-section { position: relative; padding: 64px 16px; border-top: 1px solid var(--line); }
+    #abstract { border-top: 0; }
+    .section-heading { text-align: center; margin-bottom: 32px; }
+    h2 { margin: 0; font-family: var(--heading); font-size: 40px; font-weight: 700; color: #e0e0e0; line-height: 1.35; text-shadow: 0 0 10px #000b; }
+    .section-heading p { margin: 22px auto 0; max-width: 800px; font-size: 17.6px; line-height: 1.8; color: #d0d0d0; text-shadow: 0 2px 5px #000; }
+    .abstract-panel, .method-panel, .dataset-panel, .comparison-case, .citation-panel { background: var(--panel); border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,.5); backdrop-filter: blur(5px); }
+    .abstract-panel { max-width: 864px; margin: 0 auto; padding: 32px; }
+    .abstract-panel p { margin: 0 0 20px; font-size: 17.6px; line-height: 1.8; color: #d0d0d0; text-align: left; }
+    .abstract-panel p:last-child { margin-bottom: 0; }
+    .abstract-panel strong { color: #f1e8fc; font-weight: 700; }
+    .abstract-panel em { color: #e0d8eb; }
+    .pipeline-figures { display: grid; gap: 32px; }
+    .asset-slot { margin: 0; overflow: hidden; }
+    .asset-slot img { display: block; max-width: 100%; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 10px 30px #0008; }
+    .placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,.15); border-radius: 12px; background: rgba(18,18,32,.8); color: #b0a8bf; padding: 32px; backdrop-filter: blur(5px); }
+    .placeholder .icon { width: 30px; height: 30px; margin-bottom: 14px; color: #c498df; stroke-width: 1.2; }
+    .placeholder strong { color: #d0c5dc; font-size: 18px; font-weight: 400; }
+    .placeholder span { font-size: 14px; color: #aaa1b4; margin-top: 5px; }
+    .method-placeholder { min-height: 280px; }
+    figcaption { margin: 16px 0 0; font-size: 14.4px; line-height: 1.8; color: #b0b0b0; text-align: center; }
+    .agent-disclosure { margin-top: 30px; }
+    .agent-disclosure summary { width: fit-content; margin: auto; cursor: pointer; color: #d1b4ec; font-size: 16px; text-shadow: 0 1px 6px #000; }
+    .method-panel { margin-top: 24px; padding: 26px; }
+    .pipeline-stage + .pipeline-stage { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 24px; }
+    .stage-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 17px; }
+    .stage-number { color: #cca0ed; font-family: var(--heading); font-size: 11px; white-space: nowrap; }
+    .pipeline-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .pipeline-steps.adaptation { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .agent-step { position: relative; text-align: left; border: 1px solid #dcb4ff30; border-radius: 7px; background: #af64e50a; padding: 14px; color: #eee5f8; cursor: pointer; }
+    .agent-step:hover { background: #aa46ff22; }
+    .agent-step[aria-pressed='true'] { background: #aa46ff33; border-color: #dcb4ff8c; }
+    .agent-step small { display: block; font-size: 12px; color: #c3b0d2; }
+    .agent-step strong { display: block; font-size: 15px; font-weight: 400; margin-top: 3px; }
+    .step-index, .agent-detail-label { display: none; }
+    .agent-detail { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .agent-detail h3 { margin: 0 0 7px; color: #d5b0f3; font-size: 17px; }
+    .agent-detail p { margin: 0; color: var(--muted); font-size: 16px; }
+    .dataset-panel { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; padding: 32px; gap: 32px; align-items: center; }
+    .dataset-number { font-family: var(--heading); font-size: 64px; line-height: 1; font-weight: 700; color: #cd9bed; }
+    .dataset-number span { color: #e19dff; }
+    .dataset-info > p { margin: 20px 0; font-size: 17.6px; color: #d0d0d0; }
+    .dataset-features { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+    .dataset-features li { display: flex; align-items: center; gap: 9px; font-size: 15px; color: #d2c8db; }
+    .dataset-features .icon { width: 15px; height: 15px; color: #c798e9; }
+    .dataset-visual { min-width: 0; }
+    .template-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+    .template-grid svg { width: 100%; display: block; color: #b88de5; }
+    .template-grid svg:nth-child(3n + 2) { color: #8195cd; }
+    .template-grid svg:nth-child(3n) { color: #7eb3ac; }
+    .dataset-visual figcaption { font-size: 12px; margin-top: 16px; }
+    .comparison-list { display: grid; gap: 36px; }
+    .comparison-case { overflow: hidden; border: 1px solid var(--line); padding: 22px; }
+    .case-header { text-align: center; margin-bottom: 22px; }
+    .case-index { font-family: var(--heading); font-size: 12px; color: #cf9aff; }
+    .case-header h3 { display: block; width: fit-content; margin: 5px auto 0; padding-bottom: 8px; border-bottom: 2px solid #aa46ff80; font-family: var(--font); font-size: 20px; line-height: 1.5; color: #d5d5d5; font-weight: 700; }
+    .case-header a:hover { color: var(--accent); }
+    .comparison-grid { display: grid; grid-template-columns: repeat(var(--method-count, 3), minmax(0, 1fr)); gap: 6px; }
+    .comparison-method { min-width: 0; position: relative; margin: 0; }
+    .comparison-media { aspect-ratio: 1.2; display: flex; align-items: center; justify-content: center; background: #10101b; border: 1px solid #ffffff14; border-radius: 6px; overflow: hidden; }
+    .comparison-media img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .comparison-media .placeholder { width: 100%; height: 100%; border: 0; padding: 45px 12px 22px; }
+    .comparison-media .placeholder strong { font-size: 16px; }
+    .comparison-media .placeholder span { font-size: 13px; }
+    a.comparison-media:hover { border-color: #c898ee; }
+    .comparison-method figcaption { position: absolute; top: 8px; left: 8px; max-width: calc(100% - 16px); display: flex; align-items: center; gap: 5px; padding: 4px 9px; margin: 0; border-radius: 6px; background: rgba(18,18,32,.8); color: #e0e0e0; font-size: 12px; font-weight: 700; line-height: 1.6; pointer-events: none; }
+    .comparison-method.is-ours figcaption { background: rgba(170,70,255,.7); color: #fff; }
+    .comparison-method.is-ours .comparison-media { border-color: #aa46ff60; }
+    .ours-tag { font-size: 11px; font-weight: 400; }
+    .ours-tag::before { content: '('; }
+    .ours-tag::after { content: ')'; }
+    .case-caption { color: #b0b0b0; font-size: 14.4px; line-height: 1.8; margin: 18px 0 0; text-align: center; }
+    .evaluation { margin-top: 40px; padding: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; background: var(--panel); border-radius: 12px; backdrop-filter: blur(5px); }
+    .evaluation h3 { font-size: 20px; font-weight: 700; margin: 0 0 12px; color: #e0d7e9; line-height: 1.5; }
+    .evaluation p { font-size: 16px; color: var(--muted); margin: 0; }
+    .evaluation .placeholder { min-height: 180px; padding: 20px; }
+    .citation-panel { max-width: 864px; margin: auto; }
+    .citation-top { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 0; }
+    .citation-top > span { font: 14px 'Courier New', monospace; color: #b0b0b0; }
+    .copy-button { display: inline-flex; align-items: center; gap: 7px; background: rgba(60,60,60,.7); border: 1px solid #ffffff26; border-radius: 6px; padding: 7px 12px; font-family: var(--heading); font-size: 12px; color: #ccc; cursor: pointer; }
+    .copy-button:disabled { opacity: .5; }
+    .copy-button .icon { width: 13px; height: 13px; }
+    .citation-pending { margin: 0; padding: 30px 24px 42px; text-align: center; font-size: 16px; color: var(--subtle); }
+    .citation-panel pre { margin: 0; padding: 24px 32px 32px; font: 14.4px/1.8 'Courier New', monospace; white-space: pre-wrap; overflow-wrap: anywhere; color: #d0d0d0; }
+    .copy-status { display: block; min-height: 25px; margin-top: 8px; font-size: 14px; color: var(--accent); text-align: center; }
+    .site-footer { padding: 28px 0 36px; background: rgba(10,10,20,.8); border-top: 1px solid var(--line); }
+    .footer-inner { text-align: center; }
+    .footer-brand { color: #b7b0c2; font-size: 14px; }
+    .footer-brand strong { color: #d4c0e9; margin-right: 8px; }
+    .footer-credit { display: block; color: #a5a0ac; font-size: 13px; margin-top: 7px; }
+    .footer-credit a { color: #cf9aff; }
+    .footer-credit a:hover { text-decoration: underline; }
+    .overview { margin-top: 30px; padding: 28px; background: var(--panel); border-radius: 12px; }
+    .figure-topline { display: flex; justify-content: space-between; font-size: 13px; color: #c3b5cf; }
+    .overview-flow { display: grid; grid-template-columns: 1fr 30px 1fr 30px 1fr; align-items: center; gap: 14px; margin: 26px 0; }
+    .overview-step > svg { width: 100%; max-height: 125px; }
+    .step-label { font-size: 15px; }
+    .step-label small { display: block; font-size: 12px; color: var(--subtle); }
+    .flow-arrow { width: 100%; color: #a677c3; }
+    .overview-footer { display: flex; justify-content: center; gap: 16px; font-size: 13px; color: #c1b3d0; }
+    .overview-footer i { display: none; }
+    @media (max-width: 1100px) { .poster-wall { margin-inline: -16px; } }
+    @media (max-width: 800px) {
+      .hero { padding-top: 80px; }
+      .backdrop-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .pipeline-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dataset-panel { grid-template-columns: 1fr; gap: 30px; }
+      .dataset-visual { max-width: 450px; width: 100%; margin-inline: auto !important; }
+      .evaluation { grid-template-columns: 1fr; }
+      .comparison-case { padding: 18px; }
+    }
+    @media (max-width: 600px) {
+      .wrap { width: calc(100% - 32px); }
+      .hero { padding: 58px 0 36px; }
+      h1 { font-size: 31px; line-height: 1.35; margin-bottom: 28px; }
+      h1 br { display: none; }
+      .hero-description { font-size: 17px; padding-inline: 8px; }
+      .hero-description br { display: none; }
+      .author-list.is-pending { font-size: 14px; }
+      .poster-wall { margin: 40px 0 0; }
+      .poster-wall-grid { grid-template-columns: repeat(var(--wall-columns-mobile, 3), minmax(0, 1fr)); gap: 5px; }
+      .poster-wall:not(.has-assets) .wall-tile:nth-child(n + 10) { display: none; }
+      .wall-caption { font-size: 11px; }
+      .backdrop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      section.content-section { padding: 48px 0; }
+      h2 { font-size: 30px; }
+      .section-heading { margin-bottom: 24px; }
+      .section-heading p { font-size: 16px; }
+      .abstract-panel { padding: 24px; }
+      .abstract-panel p { font-size: 16px; }
+      .method-placeholder { min-height: 210px; }
+      .pipeline-figures { gap: 24px; }
+      .method-panel { padding: 18px; }
+      .stage-heading { font-size: 15px; gap: 8px; }
+      .stage-number { font-size: 10px; }
+      .pipeline-steps.adaptation { grid-template-columns: 1fr; }
+      .agent-step { padding: 12px; }
+      .agent-step strong { font-size: 14px; }
+      .dataset-panel { padding: 26px; }
+      .dataset-info > p { font-size: 16px; }
+      .comparison-grid { grid-template-columns: 1fr; gap: 18px; }
+      .comparison-media { aspect-ratio: 1.45; }
+      .case-header h3 { font-size: 18px; }
+      .comparison-method figcaption { font-size: 13px; }
+      .evaluation { padding: 24px; }
+      .citation-panel pre { padding: 24px; }
+      .overview { padding: 18px; }
+      .overview-flow { grid-template-columns: 1fr; }
+      .flow-arrow { width: 25px; transform: rotate(90deg); margin-inline: auto; }
+      .overview-footer { flex-wrap: wrap; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <!-- Reusable, illustrative SVGs. These are layout schematics, not research results. -->
+  <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 4v16m-6-6 6 6 6-6"/></symbol>
+      <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 6-6 4 4 3-3 5 5"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
+      <symbol id="i-layout" viewBox="0 0 28 30"><rect x="2" y="2" width="24" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7 8h14M7 12h6v10H7Zm10 0h4v4h-4Zm0 8h4" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+      <symbol id="poster-a" viewBox="0 0 160 110">
+        <rect x="1" y="1" width="158" height="108" rx="5" fill="#171420" stroke="currentColor" stroke-opacity=".25"/>
+        <rect x="8" y="8" width="144" height="20" rx="2" fill="currentColor" fill-opacity=".65"/>
+        <path d="M16 15h99M16 21h68" stroke="#eee4ff" stroke-width="2" stroke-opacity=".65"/>
+        <g fill="currentColor" fill-opacity=".16"><rect x="8" y="35" width="44" height="65" rx="2"/><rect x="58" y="35" width="44" height="65" rx="2"/><rect x="108" y="35" width="44" height="65" rx="2"/></g>
+        <g stroke="currentColor" stroke-opacity=".65" stroke-width="2"><path d="M14 42h22m28 0h25m25 0h22"/><path d="M14 50h31m-31 5h31m-31 5h21M64 50h31m-31 5h25M114 78h31m-31 5h31m-31 5h22" stroke-opacity=".3"/></g>
+        <rect x="14" y="70" width="31" height="22" rx="2" fill="currentColor" fill-opacity=".22"/>
+        <g fill="currentColor" fill-opacity=".6"><rect x="65" y="78" width="6" height="14" rx="1"/><rect x="75" y="69" width="6" height="23" rx="1"/><rect x="85" y="63" width="6" height="29" rx="1"/></g>
+        <circle cx="130" cy="59" r="10" fill="none" stroke="currentColor" stroke-opacity=".6" stroke-width="5"/>
+      </symbol>
+      <symbol id="poster-b" viewBox="0 0 160 110">
+        <rect x="1" y="1" width="158" height="108" rx="5" fill="#171420" stroke="currentColor" stroke-opacity=".25"/>
+        <rect x="8" y="8" width="144" height="20" rx="2" fill="currentColor" fill-opacity=".45"/>
+        <path d="M16 15h110M16 21h76" stroke="#eee4ff" stroke-width="2" stroke-opacity=".6"/>
+        <g fill="currentColor" fill-opacity=".15"><rect x="8" y="35" width="57" height="65" rx="2"/><rect x="72" y="35" width="80" height="36" rx="2"/><rect x="72" y="77" width="80" height="23" rx="2"/></g>
+        <g stroke="currentColor" stroke-width="2"><path d="M15 42h34m30 0h34M79 84h30" stroke-opacity=".7"/><path d="M15 50h42m-42 6h42m-42 6h31m-31 17h42m-42 6h42m-42 6h28M79 91h62" stroke-opacity=".3"/><path d="m80 62 12-5 12 3 13-10 13 6 14-7" fill="none" stroke-opacity=".65"/></g>
+      </symbol>
+    </defs>
+  </svg>
+
+
+      <div class="page-backdrop" aria-hidden="true"><div class="backdrop-grid" id="backdrop-grid">
+        <svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg>
+        <svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg>
+        <svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg>
+      <svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg>
+        <svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg>
+        <svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg>
+      <svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg>
+        <svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg>
+        <svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg>
+      <svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg>
+        <svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg>
+        <svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg>
+      </div></div>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="project-title">
+
+      <div class="wrap">
+        <!-- Descriptive working title; replace with the official paper title when available. -->
+        <h1 id="project-title" aria-label="RAP: Academic Poster Generation from Real Templates">RAP: Academic Poster Generation<br>from Real Templates</h1>
+        <p class="hero-description">Turn scientific papers into editable academic posters.<br>Retrieve a real template, adapt its content, and refine the details.</p>
+        <p class="author-list is-pending" id="authors">Authors and affiliations forthcoming</p>
+        <p class="affiliations" id="affiliations" hidden></p>
+
+        <!-- ASSET: populate PROJECT.posterWall with the opening poster collection. -->
+        <figure class="poster-wall" id="poster-wall">
+          <div class="poster-wall-grid" id="poster-wall-grid" aria-hidden="true">
+            <div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div>
+            <div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div>
+          </div>
+          <figcaption class="wall-caption" id="wall-caption">Illustrative layouts · Full poster collection forthcoming</figcaption>
+        </figure>
+        <div class="overview" id="teaser-slot" hidden>
+          <div class="figure-topline"><span><span class="status-dot"></span> From paper to poster</span><span class="figure-note">Conceptual overview</span></div>
+          <div class="overview-flow">
+            <div class="overview-step">
+              <svg viewBox="0 0 178 114" role="img" aria-label="Schematic scientific paper"><rect x="47" y="10" width="79" height="99" rx="4" fill="#171823" stroke="#6e657e" stroke-opacity=".5" transform="rotate(-7 87 59)"/><rect x="51" y="4" width="79" height="99" rx="4" fill="#242030" stroke="#8d76a8" stroke-opacity=".6"/><path d="M62 17h53M67 23h43" stroke="#cab3e0" stroke-width="2.5"/><path d="M62 32h53" stroke="#756880"/><g stroke="#94849f" stroke-opacity=".55" stroke-width="1.5"><path d="M62 40h23m-23 5h23m-23 5h18m-18 5h23m-23 5h23m-23 5h17M93 40h22m-22 5h22m-22 5h17M62 76h23m-23 5h23m-23 5h23m-23 5h15M93 81h22m-22 5h22m-22 5h15"/></g><rect x="93" y="56" width="22" height="18" rx="2" fill="#b790e52b"/><path d="m96 69 4-5 5 2 7-7" stroke="#b790e5" fill="none"/></svg>
+              <div class="step-label">Your scientific paper<small>Structured content extraction</small></div>
+            </div>
+            <svg class="flow-arrow" viewBox="0 0 45 24" aria-hidden="true"><path d="M1 12h40m-6-5 7 5-7 5" stroke="currentColor" fill="none" stroke-width="1.3"/></svg>
+            <div class="overview-step">
+              <svg viewBox="0 0 178 114" role="img" aria-label="Schematic template library"><g opacity=".4" color="#8b77aa"><use href="#poster-b" x="8" y="3" width="124" height="86"/></g><g opacity=".65" color="#9c80bd"><use href="#poster-a" x="25" y="13" width="124" height="86"/></g><g color="#bb94ef"><use href="#poster-b" x="42" y="24" width="124" height="86"/></g><rect x="110" y="4" width="54" height="21" rx="10.5" fill="#332340" stroke="#8154a9" stroke-opacity=".7"/><text x="137" y="18" text-anchor="middle" fill="#dcc0ff" font-size="10" font-family="sans-serif">25K+</text></svg>
+              <div class="step-label">Retrieve a real template<small>Coarse-to-fine agent collaboration</small></div>
+            </div>
+            <svg class="flow-arrow" viewBox="0 0 45 24" aria-hidden="true"><path d="M1 12h40m-6-5 7 5-7 5" stroke="currentColor" fill="none" stroke-width="1.3"/></svg>
+            <div class="overview-step">
+              <svg viewBox="0 0 178 114" role="img" aria-label="Schematic editable poster"><g color="#bd99ef"><use href="#poster-b" x="9" y="3" width="160" height="110"/></g><rect x="80" y="36" width="81" height="37" rx="2" fill="none" stroke="#d4b2ff" stroke-width=".9" stroke-dasharray="3 2"/><g fill="#e1c4ff"><rect x="78.5" y="34.5" width="3" height="3"/><rect x="159.5" y="34.5" width="3" height="3"/><rect x="78.5" y="71.5" width="3" height="3"/><rect x="159.5" y="71.5" width="3" height="3"/></g><path d="m131 69 4 16 4-5 6-2Z" fill="#e4d0ff" stroke="#27202f" stroke-width="1.5"/></svg>
+              <div class="step-label">An editable poster<small>Content mapped. Details refined.</small></div>
+            </div>
+          </div>
+          <div class="overview-footer"><span>Real templates</span><i></i><span>Design preserved during filling</span><i></i><span>Fully editable</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section wrap" id="abstract" aria-labelledby="abstract-title">
+      <div class="section-heading"><h2 id="abstract-title">Abstract</h2></div>
+      <div class="abstract-panel">
+        <p>Automating academic poster generation from scientific papers remains challenging: existing LLM-based pipelines hallucinate layouts and produce visually defective outputs, while end-to-end image generation models yield non-editable raster images that fail to preserve dense scientific content. Yet researchers in practice rarely design posters from scratch but instead adapt existing templates.</p>
+        <p>In this paper, we present <strong>RAP</strong>, a multi-agent framework that retrieves and adapts real poster templates rather than generating layouts from scratch. We first construct <strong>PosterReverse-25K</strong>, the largest academic poster template dataset to date, by collecting over 25K posters from top-tier ML conferences and applying an automated derendering pipeline that converts poster images into structured templates. Built upon this, multiple specialized agents collaborate in a two-stage pipeline: a <em>ParserAgent</em> extracts structured metadata from the input paper; three <em>RetrievalAgents</em> then cooperate in a coarse-to-fine cascade, progressively narrowing candidates to a single best-matching template through categorical filtering, narrative matching, and aesthetic scoring; a <em>MappingAgent</em> produces a content-to-slot mapping, and deterministic rules execute all replacements, modifying slot text and images while leaving layout and styling untouched.</p>
+        <p>To address visual issues caused by filling (e.g., text overflow), an iterative <em>ReviewerAgent</em> refines visual quality through VLM-based critique and targeted style patches, with safety guards preventing destructive modifications. Experiments demonstrate that RAP produces posters with significantly more professional visual quality compared to the SOTA baselines, while maintaining full editability and fidelity closer to human-crafted exemplars.</p>
+      </div>
+    </section>
+
+    <section class="content-section wrap" id="method" aria-labelledby="method-title">
+      <div class="section-heading"><h2 id="method-title">Method</h2><p>RAP retrieves a real poster template, maps scientific content to its slots, and refines the result through a two-stage multi-agent pipeline.</p></div>
+      <!-- ASSET: populate PROJECT.pipelineFigures with one or more pipeline diagrams. -->
+      <div class="pipeline-figures" id="pipeline-figures">
+        <figure class="asset-slot"><div class="placeholder method-placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>RAP framework overview</strong><span>Full pipeline illustration forthcoming</span></div></figure>
+        <figure class="asset-slot"><div class="placeholder method-placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Pipeline details</strong><span>Additional method figures forthcoming</span></div></figure>
+      </div>
+      <details class="agent-disclosure">
+        <summary>Explore the agents and their roles</summary>
+      <div class="method-panel">
+        <div class="pipeline-stage">
+          <div class="stage-heading"><span class="stage-number">STAGE 01</span> Paper understanding &amp; template retrieval</div>
+          <div class="pipeline-steps" role="group" aria-label="Retrieval stage steps">
+            <button class="agent-step" data-agent="parser" aria-pressed="true" aria-controls="agent-detail"><span class="step-index">01</span><small>ParserAgent</small><strong>Understand the paper</strong></button>
+            <button class="agent-step" data-agent="category" aria-pressed="false" aria-controls="agent-detail"><span class="step-index">02</span><small>RetrievalAgent 1</small><strong>Categorical filtering</strong></button>
+            <button class="agent-step" data-agent="narrative" aria-pressed="false" aria-controls="agent-detail"><span class="step-index">03</span><small>RetrievalAgent 2</small><strong>Narrative matching</strong></button>
+            <button class="agent-step" data-agent="aesthetic" aria-pressed="false" aria-controls="agent-detail"><span class="step-index">04</span><small>RetrievalAgent 3</small><strong>Aesthetic scoring</strong></button>
+          </div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="stage-heading"><span class="stage-number">STAGE 02</span> Content adaptation &amp; visual refinement</div>
+          <div class="pipeline-steps adaptation" role="group" aria-label="Adaptation stage steps">
+            <button class="agent-step" data-agent="mapping" aria-pressed="false" aria-controls="agent-detail"><span class="step-index">05</span><small>MappingAgent</small><strong>Map content to slots</strong></button>
+            <button class="agent-step" data-agent="replacement" aria-pressed="false" aria-controls="agent-detail"><span class="step-index">06</span><small>Deterministic rules</small><strong>Fill the template</strong></button>
+            <button class="agent-step" data-agent="reviewer" aria-pressed="false" aria-controls="agent-detail"><span class="step-index">07</span><small>ReviewerAgent</small><strong>Review &amp; refine</strong></button>
+          </div>
+        </div>
+        <div class="agent-detail" id="agent-detail" aria-live="polite" aria-atomic="true"><div><span class="agent-detail-label">Inside the pipeline</span><h3 id="agent-name">ParserAgent</h3></div><p id="agent-description">Extracts structured metadata from the input scientific paper, preparing its content for template retrieval and adaptation.</p></div>
+      </div>
+      </details>
+    </section>
+
+    <section class="content-section wrap" id="dataset" aria-labelledby="dataset-title">
+      <div class="section-heading"><h2 id="dataset-title">PosterReverse-25K</h2><p>Real academic posters, transformed into structured templates.</p></div>
+      <div class="dataset-panel">
+        <div class="dataset-info"><div class="dataset-number">25K<span>+</span></div><p>Academic posters collected from top-tier ML conferences form the foundation for retrieval-augmented poster generation.</p><ul class="dataset-features"><li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Real, human-designed academic posters</li><li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Automated image-to-template derendering</li><li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Structured templates for content adaptation</li></ul></div>
+        <!-- ASSET: set PROJECT.figures.dataset to a real dataset preview. -->
+        <figure class="dataset-visual" id="dataset-figure" style="margin:0"><div class="template-grid" aria-hidden="true"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><figcaption>Illustrative layouts · Dataset samples forthcoming</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="content-section wrap" id="gallery" aria-labelledby="gallery-title">
+      <div class="section-heading"><h2 id="gallery-title">Gallery</h2><p>Compare how different methods turn the same scientific paper into a poster.<br>Case studies and method labels will be added with the results.</p></div>
+      <!-- ASSET: populate PROJECT.comparisons. Each case can contain any number of methods. -->
+      <div class="comparison-list" id="comparison-list">
+        <article class="comparison-case"><header class="case-header"><span class="case-index">CASE 01</span><h3>Scientific paper · Details forthcoming</h3></header><div class="comparison-grid">
+          <figure class="comparison-method"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>Comparison method 1</figcaption></figure>
+          <figure class="comparison-method"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>Comparison method 2</figcaption></figure>
+          <figure class="comparison-method is-ours"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>RAP <span class="ours-tag">Ours</span></figcaption></figure>
+        </div></article>
+        <article class="comparison-case"><header class="case-header"><span class="case-index">CASE 02</span><h3>Scientific paper · Details forthcoming</h3></header><div class="comparison-grid">
+          <figure class="comparison-method"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>Comparison method 1</figcaption></figure>
+          <figure class="comparison-method"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>Comparison method 2</figcaption></figure>
+          <figure class="comparison-method is-ours"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>RAP <span class="ours-tag">Ours</span></figcaption></figure>
+        </div></article>
+      </div>
+      <div class="evaluation"><div><h3>Designed for visual quality and editability.</h3><p>Experiments show more professional visual quality than state-of-the-art baselines, while maintaining full editability and fidelity closer to human-crafted exemplars.</p></div><figure class="asset-slot" id="results-figure"><div class="placeholder"><strong>Experimental results</strong><span>Quantitative comparisons forthcoming</span></div></figure></div>
+    </section>
+
+    <section class="content-section wrap" id="citation" aria-labelledby="citation-title">
+      <div class="section-heading"><h2 id="citation-title">Citation</h2><p>Bibliographic details will be available with the paper.</p></div>
+      <div class="citation-panel"><div class="citation-top"><span>BibTeX</span><button class="copy-button" id="copy-citation" disabled><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg><span>Copy</span></button></div><p class="citation-pending" id="citation-pending">Citation details forthcoming.</p><pre id="citation-code" hidden><code></code></pre></div>
+      <span class="copy-status" id="copy-status" role="status"></span>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="footer-inner wrap"><div class="footer-brand"><strong>RAP.</strong><span>Real templates. Thoughtful adaptation.</span></div><span class="footer-credit">Visual inspiration: <a href="https://s2guidance.github.io/" target="_blank" rel="noopener noreferrer">S²-Guidance ↗</a></span></div></footer>
+
+  <script>
+    /*
+     * CONTENT CONFIGURATION
+     * Add final metadata and local asset paths here. No build step is needed.
+     * Figure: { src: "assets/method.png", alt: "...", caption: "..." }
+     * Poster wall item: { src: "assets/poster-01.png", alt: "..." }
+     * Comparison: { title: "Paper title", paperUrl: "", caption: "", methods: [
+     *   { label: "Method name", src: "assets/method-01.png", alt: "..." },
+     *   { label: "RAP", src: "assets/rap-01.png", alt: "...", ours: true }
+     * ] }
+     */
+    const PROJECT = {
+      title: "", // Official paper title; leave empty to use the descriptive heading.
+      authors: [],
+      affiliations: [],
+      posterWall: [],
+      posterWallCaption: "",
+      pipelineFigures: [],
+      figures: { teaser: null, dataset: null, results: null },
+      comparisons: [],
+      bibtex: ""
+    };
+
+    const AGENTS = {
+      parser: ["ParserAgent", "Extracts structured metadata from the input scientific paper, preparing its content for template retrieval and adaptation."],
+      category: ["RetrievalAgent 1 · Categorical filtering", "Performs the first, coarse-grained retrieval step: filtering the template collection by category to narrow the candidate pool."],
+      narrative: ["RetrievalAgent 2 · Narrative matching", "Matches the paper’s narrative to the remaining candidate templates, progressively narrowing the retrieval results."],
+      aesthetic: ["RetrievalAgent 3 · Aesthetic scoring", "Scores the visual aesthetics of the remaining candidates to select a single best-matching template for adaptation."],
+      mapping: ["MappingAgent", "Produces a content-to-slot mapping that assigns the paper’s text and images to the selected template’s slots."],
+      replacement: ["Deterministic replacement", "Executes every replacement with deterministic rules. Slot text and images change, while layout and styling remain untouched during filling. This is a rule-based step, not an additional agent."],
+      reviewer: ["ReviewerAgent", "Iteratively critiques the filled poster using a VLM and applies targeted style patches to address issues such as text overflow. Safety guards prevent destructive modifications during refinement."]
+    };
+
+    document.querySelectorAll(".agent-step").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".agent-step").forEach(step => step.setAttribute("aria-pressed", String(step === button)));
+        const [name, description] = AGENTS[button.dataset.agent];
+        document.getElementById("agent-name").textContent = name;
+        document.getElementById("agent-description").textContent = description;
+      });
+    });
+
+    if (PROJECT.title) {
+      document.getElementById("project-title").textContent = PROJECT.title;
+      document.getElementById("project-title").removeAttribute("aria-label");
+      document.title = `${PROJECT.title} · RAP`;
+    }
+    if (PROJECT.authors.length) {
+      const authors = document.getElementById("authors");
+      authors.textContent = PROJECT.authors.join(" · ");
+      authors.classList.remove("is-pending");
+    }
+    if (PROJECT.affiliations.length) {
+      const affiliations = document.getElementById("affiliations");
+      affiliations.textContent = PROJECT.affiliations.join(" · ");
+      affiliations.hidden = false;
+    }
+
+    function makeImage(figure) {
+      const image = document.createElement("img");
+      image.src = figure.src;
+      image.alt = figure.alt || figure.caption || figure.title || "RAP project figure";
+      image.loading = "lazy";
+      image.decoding = "async";
+      return image;
+    }
+    function mountFigure(id, figure) {
+      if (!figure) return;
+      const slot = document.getElementById(id);
+      slot.hidden = false;
+      slot.replaceChildren(makeImage(figure));
+      slot.classList.add("asset-slot");
+      if (figure.caption) {
+        const caption = document.createElement(slot.tagName === "FIGURE" ? "figcaption" : "p");
+        caption.textContent = figure.caption;
+        if (slot.tagName !== "FIGURE") caption.className = "figure-note";
+        slot.append(caption);
+      }
+    }
+    mountFigure("teaser-slot", PROJECT.figures.teaser);
+    mountFigure("dataset-figure", PROJECT.figures.dataset);
+    mountFigure("results-figure", PROJECT.figures.results);
+
+    if (PROJECT.posterWall.length) {
+      const wall = document.getElementById("poster-wall-grid");
+      wall.replaceChildren();
+      wall.removeAttribute("aria-hidden");
+      wall.style.setProperty("--wall-columns", Math.min(PROJECT.posterWall.length, 5));
+      wall.style.setProperty("--wall-columns-mobile", Math.min(PROJECT.posterWall.length, 3));
+      document.getElementById("poster-wall").classList.add("has-assets");
+      document.getElementById("poster-wall").classList.toggle("is-composite", PROJECT.posterWall.length === 1);
+      const caption = document.getElementById("wall-caption");
+      caption.textContent = PROJECT.posterWallCaption;
+      caption.hidden = !PROJECT.posterWallCaption;
+      const backdrop = document.getElementById("backdrop-grid");
+      backdrop.replaceChildren();
+      const backgroundTiles = PROJECT.posterWall.length === 1 ? 1 : Math.max(48, PROJECT.posterWall.length);
+      if (PROJECT.posterWall.length === 1) {
+        backdrop.style.display = "block";
+        backdrop.style.transform = "none";
+        backdrop.style.inset = "0";
+      }
+      for (let i = 0; i < backgroundTiles; i++) {
+        const image = makeImage(PROJECT.posterWall[i % PROJECT.posterWall.length]);
+        image.alt = "";
+        if (PROJECT.posterWall.length === 1) {
+          image.style.height = "100%";
+          image.style.objectFit = "cover";
+        }
+        backdrop.append(image);
+      }
+      PROJECT.posterWall.forEach(item => {
+        const tile = document.createElement("div");
+        tile.className = "wall-tile";
+        tile.append(makeImage(item));
+        wall.append(tile);
+      });
+    }
+
+    if (PROJECT.pipelineFigures.length) {
+      const pipeline = document.getElementById("pipeline-figures");
+      pipeline.replaceChildren();
+      PROJECT.pipelineFigures.forEach((figure, index) => {
+        const slot = document.createElement("figure");
+        slot.id = `pipeline-figure-${index}`;
+        pipeline.append(slot);
+        mountFigure(slot.id, figure);
+      });
+    }
+
+    if (PROJECT.comparisons.length) {
+      const list = document.getElementById("comparison-list");
+      list.replaceChildren();
+      document.querySelector("#gallery .section-heading p").textContent = "Compare how different methods turn the same scientific paper into a poster. Select a result to view it at full resolution.";
+      PROJECT.comparisons.forEach((item, index) => {
+        const card = document.createElement("article");
+        card.className = "comparison-case";
+        const header = document.createElement("header");
+        header.className = "case-header";
+        const badge = document.createElement("span");
+        badge.className = "case-index";
+        badge.textContent = `CASE ${String(index + 1).padStart(2, "0")}`;
+        const title = document.createElement("h3");
+        if (item.paperUrl) {
+          const link = document.createElement("a");
+          link.href = item.paperUrl;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = `${item.title} ↗`;
+          title.append(link);
+        } else title.textContent = item.title;
+        header.append(badge, title);
+        const grid = document.createElement("div");
+        grid.className = "comparison-grid";
+        grid.style.setProperty("--method-count", item.methods.length);
+        item.methods.forEach(method => {
+          const result = document.createElement("figure");
+          result.className = `comparison-method${method.ours ? " is-ours" : ""}`;
+          const media = document.createElement("a");
+          media.className = "comparison-media";
+          media.href = method.src;
+          media.target = "_blank";
+          media.rel = "noopener noreferrer";
+          media.setAttribute("aria-label", `View ${method.label} result for ${item.title} at full resolution`);
+          media.append(makeImage({ ...method, alt: method.alt || `${method.label} poster for ${item.title}` }));
+          const caption = document.createElement("figcaption");
+          caption.textContent = method.label;
+          if (method.ours) {
+            const tag = document.createElement("span");
+            tag.className = "ours-tag";
+            tag.textContent = "Ours";
+            caption.append(tag);
+          }
+          result.append(media, caption);
+          grid.append(result);
+        });
+        card.append(header, grid);
+        if (item.caption) {
+          const caption = document.createElement("p");
+          caption.className = "case-caption";
+          caption.textContent = item.caption;
+          card.append(caption);
+        }
+        list.append(card);
+      });
+    }
+
+    if (PROJECT.bibtex) {
+      document.getElementById("citation-pending").hidden = true;
+      const code = document.getElementById("citation-code");
+      code.hidden = false;
+      code.querySelector("code").textContent = PROJECT.bibtex;
+      const copyButton = document.getElementById("copy-citation");
+      copyButton.disabled = false;
+      document.querySelector("#citation .section-heading p").textContent = "If you find our work useful, please consider citing our paper.";
+      copyButton.addEventListener("click", async () => {
+        const status = document.getElementById("copy-status");
+        try {
+          await navigator.clipboard.writeText(PROJECT.bibtex);
+          status.textContent = "Citation copied.";
+        } catch {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(code);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          status.textContent = "Citation selected. Press Ctrl+C or ⌘C to copy.";
+        }
+      });
+    }
+
+  </script>
+</body>
+</html>
