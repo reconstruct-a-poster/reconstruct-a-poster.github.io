@@ -267,19 +267,11 @@
 
       <div class="wrap">
         <!-- Descriptive working title; replace with the official paper title when available. -->
-        <h1 id="project-title" aria-label="RAP: Academic Poster Generation from Real Templates">RAP: Academic Poster Generation<br>from Real Templates</h1>
+        <h1 id="project-title" aria-label="RAP: A Dataset and Benchmark for Paper-to-Poster Generation via Declarative Markup from Human-Crafted Exemplars">RAP: A Dataset and Benchmark for Paper-to-Poster Generation<br>via Declarative Markup from Human-Crafted Exemplars</h1>
         <p class="hero-description">Turn scientific papers into editable academic posters.<br>Retrieve a real template, adapt its content, and refine the details.</p>
         <p class="author-list is-pending" id="authors">Authors and affiliations forthcoming</p>
         <p class="affiliations" id="affiliations" hidden></p>
 
-        <!-- ASSET: populate PROJECT.posterWall with the opening poster collection. -->
-        <figure class="poster-wall" id="poster-wall">
-          <div class="poster-wall-grid" id="poster-wall-grid" aria-hidden="true">
-            <div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div>
-            <div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg></div><div class="wall-tile"><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div>
-          </div>
-          <figcaption class="wall-caption" id="wall-caption">Illustrative layouts · Full poster collection forthcoming</figcaption>
-        </figure>
         <div class="overview" id="teaser-slot" hidden>
           <div class="figure-topline"><span><span class="status-dot"></span> From paper to poster</span><span class="figure-note">Conceptual overview</span></div>
           <div class="overview-flow">
@@ -313,7 +305,7 @@
     </section>
 
     <section class="content-section wrap" id="method" aria-labelledby="method-title">
-      <div class="section-heading"><h2 id="method-title">Method</h2><p>RAP retrieves a real poster template, maps scientific content to its slots, and refines the result through a two-stage multi-agent pipeline.</p></div>
+      <div class="section-heading"><h2 id="method-title">Method</h2><p>RAP combines three pipelines: derendering real posters into structured templates, retrieval-augmented poster generation, and post-training.</p></div>
       <!-- ASSET: populate PROJECT.pipelineFigures with one or more pipeline diagrams. -->
       <div class="pipeline-figures" id="pipeline-figures">
         <figure class="asset-slot"><div class="placeholder method-placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>RAP framework overview</strong><span>Full pipeline illustration forthcoming</span></div></figure>
@@ -344,15 +336,6 @@
       </details>
     </section>
 
-    <section class="content-section wrap" id="dataset" aria-labelledby="dataset-title">
-      <div class="section-heading"><h2 id="dataset-title">PosterReverse-25K</h2><p>Real academic posters, transformed into structured templates.</p></div>
-      <div class="dataset-panel">
-        <div class="dataset-info"><div class="dataset-number">25K<span>+</span></div><p>Academic posters collected from top-tier ML conferences form the foundation for retrieval-augmented poster generation.</p><ul class="dataset-features"><li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Real, human-designed academic posters</li><li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Automated image-to-template derendering</li><li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Structured templates for content adaptation</li></ul></div>
-        <!-- ASSET: set PROJECT.figures.dataset to a real dataset preview. -->
-        <figure class="dataset-visual" id="dataset-figure" style="margin:0"><div class="template-grid" aria-hidden="true"><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg><svg viewBox="0 0 160 110"><use href="#poster-a"/></svg><svg viewBox="0 0 160 110"><use href="#poster-b"/></svg></div><figcaption>Illustrative layouts · Dataset samples forthcoming</figcaption></figure>
-      </div>
-    </section>
-
     <section class="content-section wrap" id="gallery" aria-labelledby="gallery-title">
       <div class="section-heading"><h2 id="gallery-title">Gallery</h2><p>Compare how different methods turn the same scientific paper into a poster.<br>Case studies and method labels will be added with the results.</p></div>
       <!-- ASSET: populate PROJECT.comparisons. Each case can contain any number of methods. -->
@@ -371,14 +354,9 @@
       <div class="evaluation"><div><h3>Designed for visual quality and editability.</h3><p>Experiments show more professional visual quality than state-of-the-art baselines, while maintaining full editability and fidelity closer to human-crafted exemplars.</p></div><figure class="asset-slot" id="results-figure"><div class="placeholder"><strong>Experimental results</strong><span>Quantitative comparisons forthcoming</span></div></figure></div>
     </section>
 
-    <section class="content-section wrap" id="citation" aria-labelledby="citation-title">
-      <div class="section-heading"><h2 id="citation-title">Citation</h2><p>Bibliographic details will be available with the paper.</p></div>
-      <div class="citation-panel"><div class="citation-top"><span>BibTeX</span><button class="copy-button" id="copy-citation" disabled><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg><span>Copy</span></button></div><p class="citation-pending" id="citation-pending">Citation details forthcoming.</p><pre id="citation-code" hidden><code></code></pre></div>
-      <span class="copy-status" id="copy-status" role="status"></span>
-    </section>
   </main>
 
-  <footer class="site-footer"><div class="footer-inner wrap"><div class="footer-brand"><strong>RAP.</strong><span>Real templates. Thoughtful adaptation.</span></div><span class="footer-credit">Visual inspiration: <a href="https://s2guidance.github.io/" target="_blank" rel="noopener noreferrer">S²-Guidance ↗</a></span></div></footer>
+  <footer class="site-footer"><div class="footer-inner wrap"><div class="footer-brand"><strong>RAP.</strong><span>Real templates. Thoughtful adaptation.</span></div></div></footer>
 
   <script>
     /*
@@ -397,7 +375,11 @@
       affiliations: [],
       posterWall: [],
       posterWallCaption: "",
-      pipelineFigures: [],
+      pipelineFigures: [
+        { src: "assets/derender_pipeline.png", alt: "Derendering pipeline: layout detection and font-size estimation convert a poster image into an HTML scaffold", caption: "Derendering pipeline · poster image → HTML scaffold" },
+        { src: "assets/rag_pipeline.png", alt: "Retrieval-augmented generation pipeline: template retrieval and poster generation stages", caption: "RAG pipeline · template retrieval → poster generation" },
+        { src: "assets/posttrain_pipeline.png", alt: "Post-training pipeline: paper information extraction and user instruction construction", caption: "Post-training pipeline · paper information extraction → instruction construction" }
+      ],
       figures: { teaser: null, dataset: null, results: null },
       comparisons: [],
       bibtex: ""
@@ -447,8 +429,8 @@
       return image;
     }
     function mountFigure(id, figure) {
-      if (!figure) return;
       const slot = document.getElementById(id);
+      if (!figure || !slot) return;
       slot.hidden = false;
       slot.replaceChildren(makeImage(figure));
       slot.classList.add("asset-slot");
