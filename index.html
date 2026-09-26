@@ -299,9 +299,9 @@
     <section class="content-section wrap" id="abstract" aria-labelledby="abstract-title">
       <div class="section-heading"><h2 id="abstract-title">Abstract</h2></div>
       <div class="abstract-panel">
-        <p>Automating academic poster generation from scientific papers remains challenging: existing LLM-based pipelines hallucinate layouts and produce visually defective outputs, while end-to-end image generation models yield non-editable raster images that fail to preserve dense scientific content. Yet researchers in practice rarely design posters from scratch but instead adapt existing templates.</p>
-        <p>In this paper, we present <strong>RAP</strong>, a multi-agent framework that retrieves and adapts real poster templates rather than generating layouts from scratch. We first construct <strong>PosterReverse-25K</strong>, the largest academic poster template dataset to date, by collecting over 25K posters from top-tier ML conferences and applying an automated derendering pipeline that converts poster images into structured templates. Built upon this, multiple specialized agents collaborate in a two-stage pipeline: a <em>ParserAgent</em> extracts structured metadata from the input paper; three <em>RetrievalAgents</em> then cooperate in a coarse-to-fine cascade, progressively narrowing candidates to a single best-matching template through categorical filtering, narrative matching, and aesthetic scoring; a <em>MappingAgent</em> produces a content-to-slot mapping, and deterministic rules execute all replacements, modifying slot text and images while leaving layout and styling untouched.</p>
-        <p>To address visual issues caused by filling (e.g., text overflow), an iterative <em>ReviewerAgent</em> refines visual quality through VLM-based critique and targeted style patches, with safety guards preventing destructive modifications. Experiments demonstrate that RAP produces posters with significantly more professional visual quality compared to the SOTA baselines, while maintaining full editability and fidelity closer to human-crafted exemplars.</p>
+        <p>Making a conference poster is visual coding in miniature: an entire paper must be compressed onto a single page, which exercises summarization, visual design, and code implementation at once, using nothing beyond the paper itself. Yet benchmarks for this task in the context of visual coding remain scarce: existing resources are small and annotated only with layout boxes, so evaluation must fall back on VLM-as-judge or human checklists rather than objective render-and-compare, and the generation methods they support design layouts from scratch, leaving human-crafted posters unusable as either a retrievable design library or as verified supervision.</p>
+        <p>We introduce <strong>PosterReverse-25K</strong>, a dataset and benchmark for paper-to-poster generation as a visual coding task. <strong>PosterReverse</strong> contains 25K+ verified paper-poster pairs from various Machine Learning conferences published between 2022 and 2026, annotated with a three-level content taxonomy, plus a held-out benchmark of 150 test papers each paired with its human poster. A fully automated derendering pipeline turns each poster into styled HTML/CSS of typed, refillable slots, so every sample is a paper-poster-markup triplet verifiable by rendering against the source poster.</p>
+        <p>The corpus serves both inference and training: <strong>RAP</strong>, a training-free multi-agent pipeline, retrieves an exemplar and refills its slots without touching layout or styling, while an SFT+RL recipe trains a dedicated model from the same triplets.</p>
       </div>
     </section>
 
@@ -361,8 +361,8 @@
         </div>
       </div>
       <div class="gallery-group" id="gallery-compare">
-        <h3 class="gallery-subtitle">Other methods vs. RAP</h3>
-        <div class="comparison-list" id="comparison-list">
+        <h3 class="gallery-subtitle">RAP vs. other methods</h3>
+        <div class="comparison-list is-compact" id="comparison-list">
           <article class="comparison-case"><header class="case-header"><span class="case-index">CASE 01</span><h3>Scientific paper · Details forthcoming</h3></header><div class="comparison-grid">
             <figure class="comparison-method"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>Comparison method</figcaption></figure>
             <figure class="comparison-method is-ours"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>RAP <span class="ours-tag">Ours</span></figcaption></figure>
@@ -453,7 +453,28 @@
           { label: "RAP", src: "assets/compose/case-06-poster.png", alt: "RAP-composed poster for ICLR 2023 paper 11128", ours: true }
         ] }
       ],
-      comparisons: [],
+      comparisons: [
+        { title: "", caption: "", methods: [
+          { label: "RAP-RL", src: "assets/compare/case-01-ours.png", alt: "RAP-RL poster for ICLR 2025 paper 5006", ours: true },
+          { label: "GPT-6-Astra", src: "assets/compare/case-01-baseline.png", alt: "GPT-6-Astra poster for ICLR 2025 paper 5006" }
+        ] },
+        { title: "", caption: "", methods: [
+          { label: "RAP-RL", src: "assets/compare/case-02-ours.png", alt: "RAP-RL poster for ICLR 2022 paper 5928", ours: true },
+          { label: "Kimi-K3", src: "assets/compare/case-02-baseline.png", alt: "Kimi-K3 poster for ICLR 2022 paper 5928" }
+        ] },
+        { title: "", caption: "", methods: [
+          { label: "RAP-RL", src: "assets/compare/case-03-ours.png", alt: "RAP-RL poster for ICLR 2022 paper 6146", ours: true },
+          { label: "Opus-5", src: "assets/compare/case-03-baseline.png", alt: "Opus-5 poster for ICLR 2022 paper 6146" }
+        ] },
+        { title: "", caption: "", methods: [
+          { label: "RAP-RL", src: "assets/compare/case-04-ours.png", alt: "RAP-RL poster for ICLR 2022 paper 7081", ours: true },
+          { label: "Gemini 3.1 Pro", src: "assets/compare/case-04-baseline.png", alt: "Gemini 3.1 Pro poster for ICLR 2022 paper 7081" }
+        ] },
+        { title: "", caption: "", methods: [
+          { label: "RAP-RL", src: "assets/compare/case-05-ours.png", alt: "RAP-RL poster for ICLR 2022 paper 7211", ours: true },
+          { label: "Qwen3.8-27B (base)", src: "assets/compare/case-05-baseline.png", alt: "Qwen3.8-27B base poster for ICLR 2022 paper 7211" }
+        ] }
+      ],
       bibtex: ""
     };
 
