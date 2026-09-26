@@ -313,8 +313,9 @@
         <figure class="asset-slot"><div class="placeholder method-placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>RAP framework overview</strong><span>Full pipeline illustration forthcoming</span></div></figure>
         <figure class="asset-slot"><div class="placeholder method-placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Pipeline details</strong><span>Additional method figures forthcoming</span></div></figure>
       </div>
+      <p class="method-note">Beyond retrieval, the dataset also enables <strong>post-training</strong>: paper text and assets are extracted, design and layout instructions are derived from reference posters, and a VLM is fine-tuned with SFT followed by rendering-aware RL (GRPO) under rule-based and VLM-based rewards.</p>
       <details class="agent-disclosure">
-        <summary>Explore the agents and their roles</summary>
+        <summary>Explore RAP's agents and their roles</summary>
       <div class="method-panel">
         <div class="pipeline-stage">
           <div class="stage-heading"><span class="stage-number">STAGE 01</span> Template retrieval</div>
@@ -336,12 +337,11 @@
         <div class="agent-detail" id="agent-detail" aria-live="polite" aria-atomic="true"><div><span class="agent-detail-label">Inside the pipeline</span><h3 id="agent-name">ParserAgent</h3></div><p id="agent-description">Parses LaTeX or PDF input into structured content—metadata, sections, and a figure registry—then classifies the paper into a domain/task/method taxonomy and distills its introduction into a structured summary used as the fingerprint for retrieval.</p></div>
       </div>
       </details>
-      <p class="method-note">Beyond retrieval, the dataset also enables <strong>post-training</strong>: paper text and assets are extracted, design and layout instructions are derived from reference posters, and a VLM is fine-tuned with SFT followed by rendering-aware RL (GRPO) under rule-based and VLM-based rewards.</p>
     </section>
 
     <section class="content-section wrap" id="gallery" aria-labelledby="gallery-title">
       <div class="section-heading"><h2 id="gallery-title">Gallery</h2></div>
-      <!-- ASSET: populate PROJECT.derenderCases, PROJECT.composeCases, and PROJECT.comparisons. All three share the same case shape; each case can contain any number of methods. -->
+      <!-- ASSET: populate PROJECT.derenderCases, PROJECT.composeCases, PROJECT.comparisons, and PROJECT.ablationCases. All four share the same case shape; each case can contain any number of methods. -->
       <div class="gallery-group" id="gallery-derender">
         <h3 class="gallery-subtitle">Ground truth vs. derendered template</h3>
         <div class="comparison-list is-compact" id="derender-list">
@@ -366,6 +366,16 @@
           <article class="comparison-case"><header class="case-header"><span class="case-index">CASE 01</span><h3>Scientific paper · Details forthcoming</h3></header><div class="comparison-grid">
             <figure class="comparison-method"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>Comparison method</figcaption></figure>
             <figure class="comparison-method is-ours"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>RAP <span class="ours-tag">Ours</span></figcaption></figure>
+          </div></article>
+        </div>
+      </div>
+      <div class="gallery-group" id="gallery-ablation">
+        <h3 class="gallery-subtitle">Ablation: base → SFT → RL</h3>
+        <div class="comparison-list is-compact" id="ablation-list">
+          <article class="comparison-case"><header class="case-header"><span class="case-index">CASE 01</span><h3>Scientific paper · Details forthcoming</h3></header><div class="comparison-grid">
+            <figure class="comparison-method"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>Qwen3.8-27B (base)</figcaption></figure>
+            <figure class="comparison-method is-ours"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>RAP-SFT <span class="ours-tag">Ours</span></figcaption></figure>
+            <figure class="comparison-method is-ours"><div class="comparison-media"><div class="placeholder"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg><strong>Poster result</strong><span>Visual forthcoming</span></div></div><figcaption>RAP-RL <span class="ours-tag">Ours</span></figcaption></figure>
           </div></article>
         </div>
       </div>
@@ -473,6 +483,33 @@
         { title: "", caption: "", methods: [
           { label: "RAP-RL", src: "assets/compare/case-05-ours.png", alt: "RAP-RL poster for ICLR 2022 paper 7211", ours: true },
           { label: "Qwen3.8-27B (base)", src: "assets/compare/case-05-baseline.png", alt: "Qwen3.8-27B base poster for ICLR 2022 paper 7211" }
+        ] }
+      ],
+      ablationCases: [
+        { title: "", caption: "", methods: [
+          { label: "Qwen3.8-27B (base)", src: "assets/ablation/case-01-base.png", alt: "Base Qwen3.8-27B poster for NeurIPS 2022 paper 65643" },
+          { label: "RAP-SFT", src: "assets/ablation/case-01-sft.png", alt: "RAP-SFT poster for NeurIPS 2022 paper 65643", ours: true },
+          { label: "RAP-RL", src: "assets/ablation/case-01-rl.png", alt: "RAP-RL poster for NeurIPS 2022 paper 65643", ours: true }
+        ] },
+        { title: "", caption: "", methods: [
+          { label: "Qwen3.8-27B (base)", src: "assets/ablation/case-02-base.png", alt: "Base Qwen3.8-27B poster for ICLR 2023 paper 10740" },
+          { label: "RAP-SFT", src: "assets/ablation/case-02-sft.png", alt: "RAP-SFT poster for ICLR 2023 paper 10740", ours: true },
+          { label: "RAP-RL", src: "assets/ablation/case-02-rl.png", alt: "RAP-RL poster for ICLR 2023 paper 10740", ours: true }
+        ] },
+        { title: "", caption: "", methods: [
+          { label: "Qwen3.8-27B (base)", src: "assets/ablation/case-03-base.png", alt: "Base Qwen3.8-27B poster for NeurIPS 2022 paper 63389" },
+          { label: "RAP-SFT", src: "assets/ablation/case-03-sft.png", alt: "RAP-SFT poster for NeurIPS 2022 paper 63389", ours: true },
+          { label: "RAP-RL", src: "assets/ablation/case-03-rl.png", alt: "RAP-RL poster for NeurIPS 2022 paper 63389", ours: true }
+        ] },
+        { title: "", caption: "", methods: [
+          { label: "Qwen3.8-27B (base)", src: "assets/ablation/case-04-base.png", alt: "Base Qwen3.8-27B poster for ICLR 2023 paper 11128" },
+          { label: "RAP-SFT", src: "assets/ablation/case-04-sft.png", alt: "RAP-SFT poster for ICLR 2023 paper 11128", ours: true },
+          { label: "RAP-RL", src: "assets/ablation/case-04-rl.png", alt: "RAP-RL poster for ICLR 2023 paper 11128", ours: true }
+        ] },
+        { title: "", caption: "", methods: [
+          { label: "Qwen3.8-27B (base)", src: "assets/ablation/case-05-base.png", alt: "Base Qwen3.8-27B poster for ICML 2022 paper 18069" },
+          { label: "RAP-SFT", src: "assets/ablation/case-05-sft.png", alt: "RAP-SFT poster for ICML 2022 paper 18069", ours: true },
+          { label: "RAP-RL", src: "assets/ablation/case-05-rl.png", alt: "RAP-RL poster for ICML 2022 paper 18069", ours: true }
         ] }
       ],
       bibtex: ""
@@ -667,6 +704,7 @@
     renderCaseGroup("derender-list", PROJECT.derenderCases);
     renderCaseGroup("compose-list", PROJECT.composeCases);
     renderCaseGroup("comparison-list", PROJECT.comparisons);
+    renderCaseGroup("ablation-list", PROJECT.ablationCases);
 
     if (PROJECT.bibtex) {
       document.getElementById("citation-pending").hidden = true;
